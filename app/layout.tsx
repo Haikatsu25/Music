@@ -17,13 +17,13 @@ export const viewport: Viewport = {
 };
 
 // Aplica el tema guardado antes de pintar para evitar un destello. Sin dato guardado, oscuro.
-const SCRIPT_TEMA = `try{document.documentElement.dataset.theme=localStorage.getItem("tema")==="claro"?"claro":"oscuro"}catch(e){}`;
+const SCRIPT_TEMA = `try{document.documentElement.dataset.theme=localStorage.getItem("tema")==="light"?"light":"dark"}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="es"
-      data-theme="oscuro"
+      data-theme="dark"
       suppressHydrationWarning
       className={`${bricolage.variable} ${newsreader.variable}`}
     >

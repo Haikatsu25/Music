@@ -1,5 +1,6 @@
 "use client";
 
+import { Alert, Button } from "@heroui/react";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Disco } from "@/components/Disco";
 import { FormularioMusical } from "@/components/FormularioMusical";
@@ -9,8 +10,7 @@ import type { RecomendacionEnriquecida } from "@/lib/esquema";
 import { paletaPara, tituloDisco } from "@/lib/portada";
 import { VALORES_INICIALES, aRespuestas, type Valores } from "@/lib/valores";
 
-const boton =
-  "font-display font-medium underline decoration-linea decoration-2 underline-offset-4 hover:decoration-tinta";
+const botonSecundario = "h-auto min-h-10 rounded-[3px] border-2 border-tinta px-4 py-1.5 font-display";
 
 export default function Home() {
   const [valores, setValores] = useState<Valores>(VALORES_INICIALES);
@@ -46,20 +46,30 @@ export default function Home() {
       setVerificado(Boolean(datos.verificado));
       setVista("resultado");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "No se pudo armar el disco.");
+      // fetch lanza TypeError cuando no hay red; su mensaje viene en inglés y no ayuda.
+      setError(
+        e instanceof TypeError
+          ? "No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo."
+          : e instanceof Error
+            ? e.message
+            : "No se pudo armar el disco.",
+      );
     } finally {
       setCargando(false);
     }
   }
 
   const bloqueError = error && (
-    <div role="alert" className="mt-6 border-2 border-tinta bg-superficie p-4">
-      <p className="font-display font-semibold">No se pudo armar el disco</p>
-      <p className="mt-1">{error}</p>
-      <button type="button" onClick={pedir} className={`mt-3 ${boton}`}>
-        Reintentar
-      </button>
-    </div>
+    <Alert status="danger" className="mt-6">
+      <Alert.Indicator />
+      <Alert.Content>
+        <Alert.Title className="font-display">No se pudo armar el disco</Alert.Title>
+        <Alert.Description>{error}</Alert.Description>
+        <Button variant="outline" size="sm" onPress={pedir} className={`mt-3 ${botonSecundario}`}>
+          Reintentar
+        </Button>
+      </Alert.Content>
+    </Alert>
   );
 
   return (
@@ -110,14 +120,14 @@ export default function Home() {
               >
                 Tu disco está listo
               </h1>
-              <p className="mb-8 mt-4 flex gap-6">
-                <button type="button" onClick={() => setVista("form")} className={boton}>
+              <div className="mb-8 mt-5 flex flex-wrap gap-3">
+                <Button variant="outline" onPress={() => setVista("form")} className={botonSecundario}>
                   Cambiar respuestas
-                </button>
-                <button type="button" onClick={pedir} disabled={cargando} className={`${boton} disabled:opacity-50`}>
+                </Button>
+                <Button variant="outline" onPress={pedir} isDisabled={cargando} className={botonSecundario}>
                   {cargando ? "Buscando otras…" : "Pedir otras canciones"}
-                </button>
-              </p>
+                </Button>
+              </div>
               {bloqueError}
               {resultados && (
                 <div aria-live="polite" className="mt-2">

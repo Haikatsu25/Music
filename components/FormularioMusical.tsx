@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import { Button, Input, Label, Slider, TextField, ToggleButton, ToggleButtonGroup } from "@heroui/react";
 import type { Valores } from "@/lib/valores";
 
 type Opcion = { valor: string; etiqueta: string };
@@ -49,61 +50,56 @@ const EPOCAS: Opcion[] = [
   { valor: "sin_preferencia", etiqueta: "Me da igual" },
 ];
 
+const NIVELES_ENERGIA = ["Muy suave", "Suave", "Media", "Alta", "A tope"];
 const MAX_GENEROS = 5;
 
-function Etiqueta({
-  activa,
-  onClick,
-  children,
-  deshabilitada,
-  modo,
-}: {
-  activa: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-  deshabilitada?: boolean;
-  modo: "radio" | "check";
-}) {
-  const semantica =
-    modo === "radio" ? { role: "radio", "aria-checked": activa } : { "aria-pressed": activa };
+const tituloPregunta = "font-display text-xl font-semibold";
+// Sombra dura en el color del ánimo para la opción elegida; el resto del aspecto lo da HeroUI.
+const claseOpcion =
+  "h-auto min-h-10 rounded-[3px] border-2 border-tinta px-3.5 py-1.5 font-display text-[0.95rem] data-[selected=true]:-translate-x-px data-[selected=true]:-translate-y-px data-[selected=true]:shadow-[3px_3px_0_var(--acento)]";
+
+function Pregunta({ titulo, ayuda, children }: { titulo: string; ayuda?: string; children: React.ReactNode }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={deshabilitada}
-      {...semantica}
-      className={`rounded-[3px] border-2 border-tinta min-h-10 px-3.5 py-1.5 font-display text-[0.95rem] font-medium transition-[background-color,box-shadow,transform] disabled:cursor-not-allowed disabled:border-linea disabled:text-suave/60 ${
-        activa
-          ? "-translate-x-px -translate-y-px bg-tinta text-papel shadow-[3px_3px_0_var(--acento)]"
-          : "bg-transparent hover:bg-superficie"
-      }`}
-    >
+    <div className="min-w-0">
+      <p className={`mb-3 ${tituloPregunta}`}>
+        {titulo}
+        {ayuda && <span className="ml-3 font-serif text-base font-normal italic text-suave">{ayuda}</span>}
+      </p>
       {children}
-    </button>
+    </div>
   );
 }
 
-function Pregunta({
+/** Una sola opción elegida (como un radio), con botones de selección de HeroUI. */
+function EleccionUnica({
   titulo,
-  ayuda,
-  modo,
-  children,
+  opciones,
+  valor,
+  onCambio,
 }: {
   titulo: string;
-  ayuda?: string;
-  modo: "radio" | "check";
-  children: React.ReactNode;
+  opciones: Opcion[];
+  valor: string;
+  onCambio: (v: string) => void;
 }) {
   return (
-    <fieldset className="min-w-0">
-      <legend className="mb-3 font-display text-xl font-semibold">
-        {titulo}
-        {ayuda && <span className="ml-3 font-serif text-base font-normal italic text-suave">{ayuda}</span>}
-      </legend>
-      <div role={modo === "radio" ? "radiogroup" : "group"} aria-label={titulo} className="flex flex-wrap gap-2.5">
-        {children}
-      </div>
-    </fieldset>
+    <Pregunta titulo={titulo}>
+      <ToggleButtonGroup
+        aria-label={titulo}
+        selectionMode="single"
+        disallowEmptySelection
+        isDetached
+        selectedKeys={valor ? new Set<string>([valor]) : new Set<string>()}
+        onSelectionChange={(keys) => onCambio(String([...keys][0] ?? ""))}
+        className="flex-wrap justify-start gap-2.5"
+      >
+        {opciones.map((o) => (
+          <ToggleButton key={o.valor} id={o.valor} className={claseOpcion}>
+            {o.etiqueta}
+          </ToggleButton>
+        ))}
+      </ToggleButtonGroup>
+    </Pregunta>
   );
 }
 
@@ -121,12 +117,7 @@ export function FormularioMusical({
   cargando: boolean;
 }) {
   const set = <K extends keyof Valores>(k: K, v: Valores[K]) => onCambio({ ...valores, [k]: v });
-
-  function alternarGenero(g: string) {
-    const { generos } = valores;
-    if (generos.includes(g)) set("generos", generos.filter((x) => x !== g));
-    else if (generos.length < MAX_GENEROS) set("generos", [...generos, g]);
-  }
+  const completoGeneros = valores.generos.length >= MAX_GENEROS;
 
   return (
     <form
@@ -136,106 +127,79 @@ export function FormularioMusical({
       }}
       className="space-y-9"
     >
-      <Pregunta titulo="¿Cómo te sientes hoy?" modo="radio">
-        {ANIMOS.map((o) => (
-          <Etiqueta key={o.valor} modo="radio" activa={valores.animo === o.valor} onClick={() => set("animo", o.valor)}>
-            {o.etiqueta}
-          </Etiqueta>
-        ))}
-      </Pregunta>
+      <EleccionUnica titulo="¿Cómo te sientes hoy?" opciones={ANIMOS} valor={valores.animo} onCambio={(v) => set("animo", v)} />
+      <EleccionUnica titulo="¿Qué vas a hacer?" opciones={ACTIVIDADES} valor={valores.actividad} onCambio={(v) => set("actividad", v)} />
 
-      <Pregunta titulo="¿Qué vas a hacer?" modo="radio">
-        {ACTIVIDADES.map((o) => (
-          <Etiqueta key={o.valor} modo="radio" activa={valores.actividad === o.valor} onClick={() => set("actividad", o.valor)}>
-            {o.etiqueta}
-          </Etiqueta>
-        ))}
-      </Pregunta>
-
-      <fieldset className="min-w-0">
-        <legend className="mb-3 font-display text-xl font-semibold">¿Con cuánta energía?</legend>
-        <div role="radiogroup" aria-label="Nivel de energía" className="flex items-end gap-2">
-          {[1, 2, 3, 4, 5].map((n) => (
-            <button
-              key={n}
-              type="button"
-              role="radio"
-              aria-checked={valores.energia === n}
-              aria-label={`${n} de 5`}
-              onClick={() => set("energia", n)}
-              style={{ height: `${1.1 + n * 0.55}rem` }}
-              className={`w-8 rounded-[3px] border-2 border-tinta transition-colors ${
-                n <= valores.energia ? "bg-tinta" : "bg-transparent hover:bg-superficie"
-              }`}
-            />
-          ))}
-          <span className="ml-3 pb-0.5 font-serif italic text-suave">
-            {["Muy suave", "Suave", "Media", "Alta", "A tope"][valores.energia - 1]}
-          </span>
+      <Slider
+        minValue={1}
+        maxValue={5}
+        step={1}
+        value={valores.energia}
+        onChange={(v) => set("energia", Array.isArray(v) ? v[0] : v)}
+        className="w-full"
+      >
+        <div className="mb-3 flex items-baseline justify-between gap-4">
+          <Label className={tituloPregunta}>¿Con cuánta energía?</Label>
+          <span className="font-serif italic text-suave">{NIVELES_ENERGIA[valores.energia - 1]}</span>
         </div>
-      </fieldset>
+        <Slider.Track>
+          <Slider.Fill />
+          <Slider.Thumb />
+        </Slider.Track>
+      </Slider>
 
-      <Pregunta titulo="¿Qué géneros te gustan?" ayuda={`${valores.generos.length} de ${MAX_GENEROS}`} modo="check">
-        {GENEROS.map((o) => {
-          const activa = valores.generos.includes(o.valor);
-          return (
-            <Etiqueta
+      <Pregunta titulo="¿Qué géneros te gustan?" ayuda={`${valores.generos.length} de ${MAX_GENEROS}`}>
+        <ToggleButtonGroup
+          aria-label="Géneros favoritos"
+          selectionMode="multiple"
+          isDetached
+          selectedKeys={new Set<string>(valores.generos)}
+          onSelectionChange={(keys) => set("generos", [...keys].map(String).slice(0, MAX_GENEROS))}
+          className="flex-wrap justify-start gap-2.5"
+        >
+          {GENEROS.map((o) => (
+            <ToggleButton
               key={o.valor}
-              modo="check"
-              activa={activa}
-              deshabilitada={!activa && valores.generos.length >= MAX_GENEROS}
-              onClick={() => alternarGenero(o.valor)}
+              id={o.valor}
+              isDisabled={completoGeneros && !valores.generos.includes(o.valor)}
+              className={claseOpcion}
             >
               {o.etiqueta}
-            </Etiqueta>
-          );
-        })}
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
       </Pregunta>
 
-      <Pregunta titulo="¿En qué idioma?" modo="radio">
-        {IDIOMAS.map((o) => (
-          <Etiqueta key={o.valor} modo="radio" activa={valores.idioma === o.valor} onClick={() => set("idioma", o.valor)}>
-            {o.etiqueta}
-          </Etiqueta>
-        ))}
-      </Pregunta>
+      <EleccionUnica titulo="¿En qué idioma?" opciones={IDIOMAS} valor={valores.idioma} onCambio={(v) => set("idioma", v)} />
+      <EleccionUnica titulo="¿De qué época?" opciones={EPOCAS} valor={valores.epoca} onCambio={(v) => set("epoca", v)} />
 
-      <Pregunta titulo="¿De qué época?" modo="radio">
-        {EPOCAS.map((o) => (
-          <Etiqueta key={o.valor} modo="radio" activa={valores.epoca === o.valor} onClick={() => set("epoca", o.valor)}>
-            {o.etiqueta}
-          </Etiqueta>
-        ))}
-      </Pregunta>
-
-      <div>
-        <label htmlFor="artistas" className="mb-3 block font-display text-xl font-semibold">
+      <TextField fullWidth value={valores.artistas} onChange={(v) => set("artistas", v)} maxLength={200}>
+        <Label className={`mb-3 block ${tituloPregunta}`}>
           Artistas que ya te gustan
           <span className="ml-3 font-serif text-base font-normal italic text-suave">opcional</span>
-        </label>
-        <input
-          id="artistas"
-          type="text"
-          maxLength={200}
-          value={valores.artistas}
-          onChange={(e) => set("artistas", e.target.value)}
+        </Label>
+        <Input
           placeholder="Bad Bunny, Daft Punk, Rosalía"
-          className="w-full rounded-[3px] border-2 border-tinta bg-superficie px-3.5 py-2.5 font-serif placeholder:italic placeholder:text-suave/70"
+          className="rounded-[3px] border-2 border-tinta font-serif text-base"
         />
-      </div>
+      </TextField>
 
-      <button
-        type="submit"
-        disabled={!puedeEnviar || cargando}
-        className="w-full rounded-[3px] border-2 border-tinta bg-tinta px-6 py-3.5 font-display text-lg font-semibold text-papel shadow-[4px_4px_0_var(--acento)] transition-[transform,box-shadow] hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_var(--acento)] disabled:translate-x-0 disabled:translate-y-0 disabled:cursor-not-allowed disabled:border-linea disabled:bg-linea disabled:text-suave disabled:shadow-none"
-      >
-        {cargando ? "Armando tu disco…" : "Armar mi disco"}
-      </button>
-      {!puedeEnviar && (
-        <p className="-mt-5 font-serif text-sm italic text-suave">
-          Falta responder ánimo, actividad, géneros, idioma y época.
-        </p>
-      )}
+      <div className="space-y-3">
+        <Button
+          type="submit"
+          size="lg"
+          fullWidth
+          isDisabled={!puedeEnviar || cargando}
+          className="h-auto rounded-[3px] border-2 border-tinta py-3.5 font-display text-lg font-semibold shadow-[4px_4px_0_var(--acento)] disabled:border-linea disabled:shadow-none"
+        >
+          {cargando ? "Armando tu disco…" : "Armar mi disco"}
+        </Button>
+        {!puedeEnviar && (
+          <p className="font-serif text-sm italic text-suave">
+            Falta responder ánimo, actividad, géneros, idioma y época.
+          </p>
+        )}
+      </div>
     </form>
   );
 }

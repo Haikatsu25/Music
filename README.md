@@ -2,6 +2,9 @@
 
 Formulario de preguntas (ánimo, actividad, energía, géneros, idioma, época, artistas favoritos). Una IA (Google Gemini, capa gratuita) elige 6 canciones, se verifican en Spotify y se pueden escuchar un tramo desde la app. Modo oscuro por defecto, con opción de modo claro, y diseño adaptado a móvil.
 
+## Tecnología
+Next.js 16, React 19, Tailwind CSS 4 y [HeroUI v3](https://www.heroui.com) para los componentes (botones de selección, slider, campo de texto, interruptor de tema, alertas y enlaces). Su tema está mapeado a la paleta de Sintonía en `app/globals.css`.
+
 ## Uso local
 1. Clave de Gemini gratis: https://aistudio.google.com/apikey
 2. App de Spotify (marca Web API): https://developer.spotify.com/dashboard

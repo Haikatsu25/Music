@@ -1,6 +1,7 @@
 @import "tailwindcss";
+@import "@heroui/styles";
 
-/* Oscuro por defecto; el modo claro se activa con data-theme="claro" en <html>. */
+/* Oscuro por defecto; el modo claro se activa con data-theme="light" en <html>. */
 :root {
   color-scheme: dark;
   --papel: #12101f;
@@ -10,13 +11,51 @@
   --superficie: rgba(255, 255, 255, 0.07);
   --acento: #7c6fe0;
 }
-:root[data-theme="claro"] {
+:root[data-theme="light"] {
   color-scheme: light;
   --papel: #eeeaf7;
   --tinta: #17142e;
   --suave: #5e5a7e;
   --linea: #cfcae3;
   --superficie: rgba(255, 255, 255, 0.6);
+}
+
+/*
+ * Tema de HeroUI mapeado a la paleta de Sintonía. Va sin @layer a propósito:
+ * así gana a las variables por defecto de HeroUI en claro y en oscuro.
+ */
+:root,
+:root[data-theme="light"],
+:root[data-theme="dark"] {
+  --background: var(--papel);
+  --foreground: var(--tinta);
+  --surface: var(--papel);
+  --surface-foreground: var(--tinta);
+  --surface-secondary: color-mix(in oklab, var(--papel) 93%, var(--tinta) 7%);
+  --surface-secondary-foreground: var(--tinta);
+  --surface-tertiary: color-mix(in oklab, var(--papel) 88%, var(--tinta) 12%);
+  --surface-tertiary-foreground: var(--tinta);
+  --overlay: color-mix(in oklab, var(--papel) 90%, var(--tinta) 10%);
+  --overlay-foreground: var(--tinta);
+  --muted: var(--suave);
+  --default: color-mix(in oklab, var(--papel) 90%, var(--tinta) 10%);
+  --default-foreground: var(--tinta);
+  --field-background: color-mix(in oklab, var(--papel) 94%, var(--tinta) 6%);
+  --field-foreground: var(--tinta);
+  --field-placeholder: var(--suave);
+  --border: var(--linea);
+  --separator: var(--linea);
+  --focus: var(--tinta);
+  --link: var(--tinta);
+  --accent: var(--tinta);
+  --accent-foreground: var(--papel);
+  --accent-soft: var(--tinta);
+  --accent-soft-foreground: var(--papel);
+  --accent-soft-hover: color-mix(in oklab, var(--tinta) 88%, var(--papel) 12%);
+}
+
+button {
+  font-family: var(--font-bricolage), system-ui, sans-serif;
 }
 
 @theme inline {

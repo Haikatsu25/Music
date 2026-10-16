@@ -1,12 +1,12 @@
 ﻿"use client";
 
+import { Button, Link } from "@heroui/react";
 import { useState } from "react";
 import { Portada } from "./Portada";
 import type { RecomendacionEnriquecida } from "@/lib/esquema";
 import type { Paleta } from "@/lib/portada";
 
-const enlace =
-  "underline decoration-linea decoration-2 underline-offset-4 hover:decoration-tinta focus-visible:decoration-tinta";
+const enlace = "font-display text-sm font-medium underline decoration-2 underline-offset-4";
 
 export function ListaCanciones({
   items,
@@ -57,14 +57,15 @@ export function ListaCanciones({
 
               <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 font-display text-sm font-medium">
                 {r.spotifyId ? (
-                  <button
-                    type="button"
-                    onClick={() => setAbierta(sonando ? null : clave)}
+                  <Button
+                    size="sm"
+                    variant={sonando ? "primary" : "outline"}
+                    onPress={() => setAbierta(sonando ? null : clave)}
                     aria-expanded={sonando}
-                    className="rounded-[3px] border-2 border-tinta min-h-10 px-3 py-1 transition-colors hover:bg-superficie aria-expanded:bg-tinta aria-expanded:text-papel"
+                    className="h-auto min-h-10 rounded-[3px] border-2 border-tinta px-3.5 py-1 font-display"
                   >
                     {sonando ? "Cerrar reproductor" : "Escuchar un tramo"}
-                  </button>
+                  </Button>
                 ) : (
                   verificado && (
                     <span className="font-serif text-base font-normal italic text-suave">
@@ -72,17 +73,17 @@ export function ListaCanciones({
                     </span>
                   )
                 )}
-                <a className={enlace} href={enSpotify} target="_blank" rel="noopener noreferrer">
+                <Link className={enlace} href={enSpotify} target="_blank" rel="noopener noreferrer">
                   Abrir en Spotify
-                </a>
-                <a
+                </Link>
+                <Link
                   className={enlace}
                   href={`https://www.youtube.com/results?search_query=${q}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   Buscar en YouTube
-                </a>
+                </Link>
               </div>
 
             </div>
