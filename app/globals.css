@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+/* Oscuro por defecto; el modo claro se activa con data-theme="claro" en <html>. */
+:root {
+  color-scheme: dark;
+  --papel: #12101f;
+  --tinta: #f2effa;
+  --suave: #a7a2c4;
+  --linea: #35304f;
+  --superficie: rgba(255, 255, 255, 0.07);
+  --acento: #7c6fe0;
+}
+:root[data-theme="claro"] {
+  color-scheme: light;
+  --papel: #eeeaf7;
+  --tinta: #17142e;
+  --suave: #5e5a7e;
+  --linea: #cfcae3;
+  --superficie: rgba(255, 255, 255, 0.6);
+}
+
+@theme inline {
+  --color-papel: var(--papel);
+  --color-tinta: var(--tinta);
+  --color-suave: var(--suave);
+  --color-linea: var(--linea);
+  --color-superficie: var(--superficie);
+  --color-acento: var(--acento);
+  --font-display: var(--font-bricolage), system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), Georgia, serif;
+}
+
+body {
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+:focus-visible {
+  outline: 2px solid var(--tinta);
+  outline-offset: 3px;
+}
+
+/* Portada: los colores cambian suavemente al responder */
+.forma {
+  transition: fill 0.6s ease;
+}
+
+/* Disco: sleeve + vinilo */
+.disco {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 100 / 78;
+}
+.disco-portada {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 78%;
+  z-index: 1;
+  overflow: hidden;
+  box-shadow: 0 22px 30px -20px rgba(23, 20, 46, 0.55);
+}
+.disco-vinilo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #0c0b14 0 3%, var(--acento) 3.2% 17%, transparent 17.2%),
+    conic-gradient(from 0deg, transparent 0 8%, rgba(255, 255, 255, 0.16) 12%, transparent 16% 58%, rgba(255, 255, 255, 0.1) 62%, transparent 66%),
+    repeating-radial-gradient(circle, #15131f 0 2px, #1f1c2e 2px 3px);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14);
+  transition: left 0.9s cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+.disco[data-estado="cargando"] .disco-vinilo {
+  left: 10%;
+}
+.disco[data-estado="listo"] .disco-vinilo {
+  left: 22%;
+}
+
+@keyframes girar {
+  to { transform: rotate(360deg); }
+}
+@keyframes aparecer {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .disco[data-estado="cargando"] .disco-vinilo {
+    animation: girar 1.4s linear infinite;
+  }
+  .lista-aparece {
+    animation: aparecer 0.6s ease 0.5s both;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .forma, .disco-vinilo { transition: none; }
+}
