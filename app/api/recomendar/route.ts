@@ -7,7 +7,7 @@ import { enriquecer } from "@/lib/spotify";
 // Gemini + Spotify tardan unos segundos; este margen evita cortes en Vercel.
 export const maxDuration = 30;
 
-const permitir =crearLimitador({ max: 8, ventanaMs: 60 * 60 * 1000 });
+const permitir = crearLimitador({ max: 30, ventanaMs: 60 * 60 * 1000 });
 
 export async function POST(req: Request) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";

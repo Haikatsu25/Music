@@ -21,6 +21,6 @@ npm test
 ## Notas
 - Las claves solo viven en el servidor (`app/api/recomendar/route.ts`).
 - La capa gratuita de Gemini tiene límites por minuto y por día; si se superan, la app muestra un error con opción de reintentar.
-- Límite propio de 8 solicitudes por hora por IP, en memoria (se reinicia por instancia serverless).
+- Límite propio de 30 solicitudes por hora (valor de desarrollo; bájalo en `app/api/recomendar/route.ts` antes de publicar) por IP, en memoria (se reinicia por instancia serverless).
 - El tema elegido se guarda en el navegador (`localStorage`).
 - Diseño: `docs/superpowers/specs/2026-10-15-recomendador-musical-design.md`.
